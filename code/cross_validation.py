@@ -54,6 +54,10 @@ def cross_validation(ratings, K, method, num_items_per_user, num_users_per_item,
     
     batch_size = int(np.floor(len(ind)/K))
     data_size = batch_size*K
+    
+    train_rmse_arr=[]
+    validation_rmse_arr=[]
+        
     for k in range(K):
         print('Running {}th fold in {} folds'.format(k+1, K))
         ### Split data in kth fold
