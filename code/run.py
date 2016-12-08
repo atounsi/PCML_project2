@@ -44,13 +44,13 @@ if __name__ == "__main__":
     gamma = 0.01
     if method == 0:  
         ## SGD
-        [train_rmse, validation_rmse, user_feature, item_features] =                                               matrix_factorization_SGD(train, test, num_features, lambda_user, lambda_item, gamma) 
+        [train_rmse, test_rmse, user_feature, item_features] =                                               matrix_factorization_SGD(train, test, num_features, lambda_user, lambda_item, gamma) 
     elif method == 1:            
         ## ALS
-        [train_rmse, validation_rmse, user_feature, item_features] = ALS(train,test,                                                                 num_features, lambda_user, lambda_item) 
+        [train_rmse, test_rmse, user_feature, item_features] = ALS(train,test,                                                                 num_features, lambda_user, lambda_item) 
     elif method == 2:
         ## CCD    
-        [train_rmse, validation_rmse, user_feature, item_features] = CCD(train, test, 
+        [train_rmse, test_rmse, user_feature, item_features] = CCD(train, test, 
                                                                 num_features, lambda_user, lambda_item)
     else:
         print("Incorrect method, 0-SGD, 1-ALS, 2-CCD")
