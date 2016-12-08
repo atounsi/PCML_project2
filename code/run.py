@@ -38,7 +38,7 @@ if __name__ == "__main__":
 
     ##===Train model=======##
     print("Training model")
-    num_features = 1
+    num_features = 10
     lambda_user = 0.1
     lambda_item = 0.7
     gamma = 0.01
