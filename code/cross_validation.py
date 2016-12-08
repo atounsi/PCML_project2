@@ -1,4 +1,7 @@
 import numpy as np
+import scipy
+import scipy.sparse as sp
+from recommender import *
 
 def k_fold_generator(X, K, kth_fold, batch_size, data_size, shuffled_index):   
     # Select validation and training data in kth fold
@@ -33,7 +36,7 @@ def k_fold_generator(X, K, kth_fold, batch_size, data_size, shuffled_index):
     """
 
 
-def cross_validation(ratings, K, method, num_items_per_user, num_users_per_item, min_num_ratings):
+def cross_validation(ratings, K, method, num_items_per_user, num_users_per_item, min_num_ratings, num_features=1, lambda_user=0.1, lambda_item=0.7, gamma=0.01):
     '''
     method: 0-SGD, 1-ALS, 2-CCD
     '''
