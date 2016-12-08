@@ -8,9 +8,17 @@ from split_data import split_data
 from preprocess import preprocess
 from submit_predictions import submit_predictions
 from recommender import *
+import argparse
 
 if __name__ == "__main__":
 
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        'method', metavar='int', type=int, help='an integer in the range 1..3')
+    parser.add_argument("-v", "--submit", action="store_true",
+                    help="submit the results")
+    args = parser.parse_args()
+    method = args.method
     ##======= Load data ======##
     print("Loading training data")
     path_dataset = "../data/data_train.csv"
@@ -34,32 +42,44 @@ if __name__ == "__main__":
     lambda_user = 0.1
     lambda_item = 0.7
     gamma = 0.01
-    [train_rmse, test_rmse, user_features, item_features] = matrix_factorization_SGD(train,
-                                                 test, num_features, lambda_user, lambda_item, gamma)
+    if method == 0:  
+        ## SGD
+        [train_rmse, validation_rmse, user_feature, item_features] =                                               matrix_factorization_SGD(train, test, num_features, lambda_user, lambda_item, gamma) 
+    elif method == 1:            
+        ## ALS
+        [train_rmse, validation_rmse, user_feature, item_features] = ALS(train,test,                                                                 num_features, lambda_user, lambda_item) 
+    elif method == 2:
+        ## CCD    
+        [train_rmse, validation_rmse, user_feature, item_features] = CCD(train, test, 
+                                                                num_features, lambda_user, lambda_item)
+    else:
+        print("Incorrect method, 0-SGD, 1-ALS, 2-CCD")
+
     print("RMSE on train data: {}.".format(train_rmse))
     print("RMSE on test data: {}.".format(test_rmse))
 
 
-    ##===Load test data====##
-    print("Loading test data")
-    path_dataset = "../data/sampleSubmission.csv"
-    submission_ratings = load_data(path_dataset)
+    if args.submit:
+        ##===Load test data====##
+        print("Loading test data")
+        path_dataset = "../data/sampleSubmission.csv"
+        submission_ratings = load_data(path_dataset)
 
 
-    ##====Generate predictions for test data====##
-    print("Generate predictions")
-    nz_row, nz_col = submission_ratings.nonzero()
-    nz = list(zip(nz_row, nz_col))
-    prediction = [(np.dot(item_features[d,:],(user_features[:,n]))) for (d,n) in nz]
-    prediction = np.round(prediction,3)
+        ##====Generate predictions for test data====##
+        print("Generate predictions")
+        nz_row, nz_col = submission_ratings.nonzero()
+        nz = list(zip(nz_row, nz_col))
+        prediction = [(np.dot(item_features[d,:],(user_features[:,n]))) for (d,n) in nz]
+        prediction = np.round(prediction,3)
 
 
-    ##==== Create submission file=====##
-    print("Creating submission file")
-    sampleSubmissionFilename = '../data/sampleSubmission.csv'
-    outputFilename = 'submit.csv'
-    submit_predictions(prediction, outputFilename, sampleSubmissionFilename)
-
+        ##==== Create submission file=====##
+        print("Creating submission file")
+        sampleSubmissionFilename = '../data/sampleSubmission.csv'
+        outputFilename = 'submit.csv'
+        submit_predictions(prediction, outputFilename, sampleSubmissionFilename)
+    
 
 
 
