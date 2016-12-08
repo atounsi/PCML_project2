@@ -84,3 +84,110 @@ def matrix_factorization_SGD(train, test, num_features, lambda_user, lambda_item
     #print("RMSE on test data: {}.".format(test_rmse))
     
     return train_rmse, test_rmse, user_features, item_features
+
+
+def init_MF_ALS(train, num_features):
+    """init the parameter for matrix factorization."""
+    
+    # ***************************************************
+    num_items, num_users = train.shape
+    user_mean = np.array(train.sum(axis=0)/train.getnnz(axis=0))
+    user_features = np.r_[user_mean,np.random.randn(num_features-1,num_users)]
+    item_mean = np.array(train.sum(axis=1).T/train.getnnz(axis=1)).T
+    item_features = np.c_[item_mean,np.random.randn(num_items,num_features-1)]
+    #item_features = np.zeros((num_items,num_features))
+    # ***************************************************
+    return 1.0*user_features,1.0*item_features
+
+def update_user_CCD(
+        residual, user_features, item_features, user, lambda_user,
+        nnz_items_per_user, nz_user_itemindices):
+    """update user feature row."""
+    # ***************************************************
+    num_items,num_users = residual.shape
+    num_features = item_features.shape[1]
+    nnz_items = nnz_items_per_user[user]
+    nz_itemindices = nz_user_itemindices[user]
+    for t in np.arange(num_features):
+        nom = residual[nz_itemindices,user]+ user_features[t,user]*np.c_[item_features[nz_itemindices,t]]
+        nom = (item_features[nz_itemindices,t].T).dot(nom)[0,0]
+        denom = lambda_user + (item_features[nz_itemindices,t].T).dot(item_features[nz_itemindices,t])
+        new = nom/denom
+        new_res = residual[nz_itemindices,user] - (new-user_features[t,user])*np.c_[item_features[nz_itemindices,t]]
+        residual[nz_itemindices,user] = np.squeeze(np.asarray(new_res))
+        user_features[t,user] = new
+    # ***************************************************
+
+def update_item_CCD(
+        residual, user_features, item_features, item, lambda_item,
+        nnz_users_per_item, nz_item_userindices):
+    """update item feature column."""
+    # ***************************************************
+    num_items,num_users = residual.shape
+    num_features = user_features.shape[0]
+    nnz_users = nnz_users_per_item[item]
+    nz_userindices = nz_item_userindices[item]
+    for t in np.arange(num_features):
+        nom = residual[item,nz_userindices] + item_features[item,t]*np.r_[user_features[t,nz_userindices]]
+        nom = nom.dot((user_features[t,nz_userindices]).T)[0,0]
+        denom = lambda_item + (user_features[t,nz_userindices]).dot(user_features[t,nz_userindices].T)
+        new = nom/denom
+        new_res = residual[item,nz_userindices] - (new-item_features[item,t])*user_features[t,nz_userindices]
+        residual[item,nz_userindices] = np.squeeze(np.asarray(new_res))
+        item_features[item,t] = new
+    # ***************************************************
+
+def compute_error_residual(residual, nz):
+    """compute the loss (MSE) of the prediction of nonzero elements."""
+    # ***************************************************
+    t = np.array([residual[d,n] for (d,n) in nz])
+    rmse = np.sqrt(t.dot(t.T)/len(nz))
+    # ***************************************************
+    return rmse
+
+# Cyclic coordinate descent
+def CCD(train, test, num_features=10, lambda_user=0.1, lambda_item=0.7):
+    """Cyclic coordinate descent (CCD) algorithm."""
+    # define parameters
+    stop_criterion = 1e-4
+    change = 1
+    error_list = [0, 0]
+    
+    # set seed
+    np.random.seed(988)
+
+    # init CCD
+    user_features, item_features = init_MF_ALS(train, num_features)
+    
+    # ***************************************************
+    nz_row, nz_col = test.nonzero()
+    nz_test = list(zip(nz_row, nz_col))
+    nz_train, nz_row_colindices, nz_col_rowindices = build_index_groups(train)
+    _,nz_user_itemindices = map(list,zip(*nz_col_rowindices))
+    nnz_items_per_user = [len(i) for i in nz_user_itemindices]
+    _,nz_item_userindices = map(list,zip(*nz_row_colindices))
+    nnz_users_per_item = [len(i) for i in nz_item_userindices]
+    max_it = 20
+    
+    print("learn the matrix factorization using CCD...")
+    
+    num_items,num_users = train.shape
+    residual = train - item_features.dot(user_features)
+
+    for it in np.arange(max_it):
+        for user in np.arange(num_users):
+            update_user_CCD(residual, user_features, item_features, user, lambda_user, nnz_items_per_user, nz_user_itemindices)
+            
+        for item in np.arange(num_features):
+            update_item_CCD(residual, user_features, item_features, item, lambda_item, nnz_users_per_item, nz_item_userindices)
+        
+        train_rmse = compute_error_residual(residual, nz_train)
+        print("iter: {}, RMSE on training set: {}.".format(it, train_rmse))        
+        error_list.append(train_rmse)
+        if abs(error_list[-1]-error_list[-2])<stop_criterion:
+            break
+
+    test_rmse = compute_error(test, user_features, item_features, nz_test)
+    print("RMSE on test data: {}.".format(test_rmse))
+    
+    return train_rmse, test_rmse, user_features, item_features
