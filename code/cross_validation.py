@@ -54,11 +54,11 @@ def cross_validation(ratings, K, method, num_items_per_user, num_users_per_item,
         ### Split data in kth fold
         [training, validation] = k_fold_generator(valid_ratings, K, k, batch_size, data_size, shuffled_index)
         
-        ### Matrix factorization using SGD/ALS
+        ### Matrix factorization using SGD/ALS/CCD
         if method == 0:  ## SGD
             [train_rmse, validation_rmse, user_feature, item_features] = matrix_factorization_SGD(training,
                                                  validation, num_features, lambda_user, lambda_item, gamma) 
-        elif method == 1:            ## ALS
+        elif method == 1:  ## ALS
             [train_rmse, validation_rmse, user_feature, item_features] = ALS(training,
                                                     validation, num_features, lambda_user, lambda_item) 
         elif method == 2:
