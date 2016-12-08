@@ -1,3 +1,5 @@
+import numpy as np
+
 def k_fold_generator(X, K, kth_fold, batch_size, data_size, shuffled_index):   
     # Select validation and training data in kth fold
     start_val_ind = kth_fold*batch_size
