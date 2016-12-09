@@ -34,11 +34,11 @@ if __name__ == "__main__":
     print("Splitting data into train and test sets")
     num_items_per_user = np.array((ratings != 0).sum(axis=0)).flatten()
     num_users_per_item = np.array((ratings != 0).sum(axis=1).T).flatten()
-    valid_ratings, train, test = split_data(ratings, num_items_per_user, num_users_per_item, min_num_ratings=1, p_test=0.1)
+    valid_ratings, train, test = split_data(ratings, num_items_per_user, num_users_per_item, min_num_ratings=1, p_test=0.3)
 
     ##===Train model=======##
     print("Training model")
-    num_features = 10
+    num_features = 1
     lambda_user = 0.1
     lambda_item = 0.7
     gamma = 0.01

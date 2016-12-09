@@ -270,6 +270,21 @@ def compute_error_residual(residual, nz):
     # ***************************************************
     return rmse
 
+def init_MF_CCD(train, num_features):
+    """init the parameter for matrix factorization."""
+    
+    # return init_MF(train, num_features)
+    # return init_MF_ALS(train, num_features)
+    # ***************************************************
+    num_items, num_users = train.shape
+    user_mean = np.array(train.sum(axis=0)/train.getnnz(axis=0))
+    user_features = np.r_[user_mean,np.random.randn(num_features-1,num_users)]
+    item_mean = np.array(train.sum(axis=1).T/train.getnnz(axis=1)).T
+    item_features = np.c_[item_mean,item_mean+np.random.randn(num_items,num_features-1)]
+    #item_features = np.zeros((num_items,num_features))
+    # ***************************************************
+    return 1.0*user_features,1.0*item_features
+
 # Cyclic coordinate descent
 def CCD(train, test, num_features=10, lambda_user=0.1, lambda_item=0.7):
     """Cyclic coordinate descent (CCD) algorithm."""
@@ -282,7 +297,7 @@ def CCD(train, test, num_features=10, lambda_user=0.1, lambda_item=0.7):
     np.random.seed(988)
 
     # init CCD
-    user_features, item_features = init_MF_ALS(train, num_features)
+    user_features, item_features = init_MF_CCD(train, num_features)
     
     # ***************************************************
     nz_row, nz_col = test.nonzero()
@@ -292,7 +307,7 @@ def CCD(train, test, num_features=10, lambda_user=0.1, lambda_item=0.7):
     nnz_items_per_user = [len(i) for i in nz_user_itemindices]
     _,nz_item_userindices = map(list,zip(*nz_row_colindices))
     nnz_users_per_item = [len(i) for i in nz_item_userindices]
-    max_it = 20
+    max_it = 100
     
     print("learn the matrix factorization using CCD...")
     
