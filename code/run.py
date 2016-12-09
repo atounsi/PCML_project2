@@ -38,16 +38,16 @@ if __name__ == "__main__":
 
     ##===Train model=======##
     print("Training model")
-    num_features = 1
+    num_features = 10
     lambda_user = 0.1
     lambda_item = 0.7
     gamma = 0.01
     if method == 0:  
         ## SGD
-        [train_rmse, test_rmse, user_features, item_features] =                                               matrix_factorization_SGD(train, test, num_features, lambda_user, lambda_item, gamma) 
+        [train_rmse, test_rmse, user_features, item_features] = matrix_factorization_SGD(train, test, num_features, lambda_user, lambda_item, gamma) 
     elif method == 1:            
         ## ALS
-        [train_rmse, test_rmse, user_features, item_features] = ALS(train,test,                                                                 num_features, lambda_user, lambda_item) 
+        [train_rmse, test_rmse, user_features, item_features] = ALS(train,test, num_features, lambda_user, lambda_item) 
     elif method == 2:
         ## CCD    
         [train_rmse, test_rmse, user_features, item_features] = CCD(train, test, 
@@ -68,10 +68,12 @@ if __name__ == "__main__":
 
         ##====Generate predictions for test data====##
         print("Generate predictions")
+        prediction = sp.lil_matrix(submission_ratings.get_shape())
         nz_row, nz_col = submission_ratings.nonzero()
         nz = list(zip(nz_row, nz_col))
-        prediction = [(np.dot(item_features[d,:],(user_features[:,n]))) for (d,n) in nz]
-        prediction = np.round(prediction,3)
+
+        for i in range(len(nz_row)):
+            prediction[nz_row[i], nz_col[i]] = np.dot(item_features[nz_row[i],:], user_features[:,nz_col[i]])
 
 
         ##==== Create submission file=====##
