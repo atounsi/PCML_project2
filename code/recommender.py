@@ -229,38 +229,44 @@ def update_user_CCD(
         nnz_items_per_user, nz_user_itemindices):
     """update user feature row."""
     # ***************************************************
+    new_residual = residual
+    new_user_f = user_features
     num_items,num_users = residual.shape
     num_features = item_features.shape[1]
     nnz_items = nnz_items_per_user[user]
     nz_itemindices = nz_user_itemindices[user]
     for t in np.arange(num_features):
-        nom = residual[nz_itemindices,user]+ user_features[t,user]*np.c_[item_features[nz_itemindices,t]]
+        nom = new_residual[nz_itemindices,user]+ new_user_f[t,user]*np.c_[item_features[nz_itemindices,t]]
         nom = (item_features[nz_itemindices,t].T).dot(nom)[0,0]
         denom = lambda_user + (item_features[nz_itemindices,t].T).dot(item_features[nz_itemindices,t])
         new = nom/denom
-        new_res = residual[nz_itemindices,user] - (new-user_features[t,user])*np.c_[item_features[nz_itemindices,t]]
-        residual[nz_itemindices,user] = np.squeeze(np.asarray(new_res))
-        user_features[t,user] = new
+        new_res = new_residual[nz_itemindices,user] - (new-new_user_f[t,user])*np.c_[item_features[nz_itemindices,t]]
+        new_residual[nz_itemindices,user] = np.squeeze(np.asarray(new_res))
+        new_user_f[t,user] = new
     # ***************************************************
+    return new_residual , new_user_f
 
 def update_item_CCD(
         residual, user_features, item_features, item, lambda_item,
         nnz_users_per_item, nz_item_userindices):
     """update item feature column."""
     # ***************************************************
+    new_residual = residual
+    new_item_f = item_features
     num_items,num_users = residual.shape
     num_features = user_features.shape[0]
     nnz_users = nnz_users_per_item[item]
     nz_userindices = nz_item_userindices[item]
     for t in np.arange(num_features):
-        nom = residual[item,nz_userindices] + item_features[item,t]*np.r_[user_features[t,nz_userindices]]
+        nom = new_residual[item,nz_userindices] + new_item_f[item,t]*np.r_[user_features[t,nz_userindices]]
         nom = nom.dot((user_features[t,nz_userindices]).T)[0,0]
         denom = lambda_item + (user_features[t,nz_userindices]).dot(user_features[t,nz_userindices].T)
         new = nom/denom
-        new_res = residual[item,nz_userindices] - (new-item_features[item,t])*user_features[t,nz_userindices]
-        residual[item,nz_userindices] = np.squeeze(np.asarray(new_res))
-        item_features[item,t] = new
+        new_res = new_residual[item,nz_userindices] - (new-new_item_f[item,t])*user_features[t,nz_userindices]
+        new_residual[item,nz_userindices] = np.squeeze(np.asarray(new_res))
+        new_item_f[item,t] = new
     # ***************************************************
+    return new_residual , new_item_f
 
 def compute_error_residual(residual, nz):
     """compute the loss (MSE) of the prediction of nonzero elements."""
@@ -307,7 +313,7 @@ def CCD(train, test, num_features=10, lambda_user=0.1, lambda_item=0.7):
     nnz_items_per_user = [len(i) for i in nz_user_itemindices]
     _,nz_item_userindices = map(list,zip(*nz_row_colindices))
     nnz_users_per_item = [len(i) for i in nz_item_userindices]
-    max_it = 100
+    max_it = 1e3
     
     print("learn the matrix factorization using CCD...")
     
@@ -316,10 +322,10 @@ def CCD(train, test, num_features=10, lambda_user=0.1, lambda_item=0.7):
 
     for it in np.arange(max_it):
         for user in np.arange(num_users):
-            update_user_CCD(residual, user_features, item_features, user, lambda_user, nnz_items_per_user, nz_user_itemindices)
+            [residual,user_features] = update_user_CCD(residual, user_features, item_features, user, lambda_user, nnz_items_per_user, nz_user_itemindices)
             
         for item in np.arange(num_features):
-            update_item_CCD(residual, user_features, item_features, item, lambda_item, nnz_users_per_item, nz_item_userindices)
+            [residual,item_features] = update_item_CCD(residual, user_features, item_features, item, lambda_item, nnz_users_per_item, nz_item_userindices)
         
         train_rmse = compute_error_residual(residual, nz_train)
         print("iter: {}, RMSE on training set: {}.".format(it, train_rmse))        

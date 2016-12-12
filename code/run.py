@@ -15,10 +15,23 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
         'method', metavar='int', type=int, help='an integer in the range 1..3')
+    #parser.add_argument(
+    #    'num_features', metavar='float', type=int, help='an integer , number of features')
+    #parser.add_argument(
+    #    'lambda_user', metavar='float', type=float, help='float : penalize users')
+    #parser.add_argument(
+    #    'lambda_item', metavar='float', type=float, help='float : penalize items')
+    #parser.add_argument(
+    #    'gamma', metavar='float', type=float, help='learning rate for SGD')
     parser.add_argument("-v", "--submit", action="store_true",
                     help="submit the results")
     args = parser.parse_args()
     method = args.method
+    num_features = 10 #args.num_features
+    lambda_user = 0.1 #args.lambda_user
+    lambda_item = 0.7 #args.lambda_item
+    gamma = 0.01 #args.gamma
+    
     ##======= Load data ======##
     print("Loading training data")
     path_dataset = "../data/data_train.csv"
@@ -34,15 +47,15 @@ if __name__ == "__main__":
     print("Splitting data into train and test sets")
     num_items_per_user = np.array((ratings != 0).sum(axis=0)).flatten()
     num_users_per_item = np.array((ratings != 0).sum(axis=1).T).flatten()
-    valid_ratings, train, test = split_data(ratings, num_items_per_user, num_users_per_item, min_num_ratings=1, p_test=0.3)
+    valid_ratings, train, test = split_data(ratings, num_items_per_user, num_users_per_item, min_num_ratings=1, p_test=0.25)
 
     ##===Train model=======##
     print("Training model")
-    num_features = 10
-    lambda_user = 0.1
-    lambda_item = 0.7
-    gamma = 0.01
-    if method == 0:  
+    #num_features = 10
+    #lambda_user = 0.1
+    #lambda_item = 0.7
+    #gamma = 0.01
+    if method == 0:
         ## SGD
         [train_rmse, test_rmse, user_features, item_features] = matrix_factorization_SGD(train, test, num_features, lambda_user, lambda_item, gamma) 
     elif method == 1:            
