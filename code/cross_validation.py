@@ -14,10 +14,17 @@ def k_fold_generator(X, K, kth_fold, batch_size, data_size, shuffled_index):
     validation = np.zeros(X.get_shape())   ## Initialise dense matrix
     train = np.zeros(X.get_shape())        ## Initialise dense matrix
     Xdense = X.todense()                   ## Change ratings to dense matrix
+    
     val_ind = shuffled_index[start_val_ind:end_val_ind]   ## Validation data indices
-    validation[val_ind] = Xdense[val_ind]
+    #validation[val_ind] = Xdense[val_ind]  ## Incorrect
+    for i in range(len(val_ind)):
+        validation[val_ind[i][0], val_ind[i][1]] = Xdense[val_ind[i][0], val_ind[i][1]]
+        
     train_ind = shuffled_index[np.setxor1d(range(0,data_size),range(start_val_ind,end_val_ind))]
-    train[train_ind] = Xdense[train_ind]                  ## Training data indices
+    #train[train_ind] = Xdense[train_ind]   ## Incorrect
+    for i in range(len(train_ind)):         ## Training data indices
+        train[train_ind[i][0], train_ind[i][1]] = Xdense[train_ind[i][0], train_ind[i][1]]
+        
     return sp.lil_matrix(train), sp.lil_matrix(validation)## Return sparse matrices
     
     """
@@ -75,7 +82,7 @@ def cross_validation(ratings, K, method, num_items_per_user, num_users_per_item,
                                                                 num_features, lambda_user, lambda_item)
         else:
             print("Incorrect method, 0-SGD, 1-ALS, 2-CCD")
-            
+        
         train_rmse_arr.append(train_rmse)
         validation_rmse_arr.append(validation_rmse)
         
