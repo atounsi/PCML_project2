@@ -4,7 +4,7 @@ import scipy
 import scipy.io
 import scipy.sparse as sp
 from helpers import load_data, preprocess_data
-from split_data import split_data
+from split_data import *
 from preprocess import preprocess
 from submit_predictions import submit_predictions
 from recommender import *
@@ -14,7 +14,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        'method', metavar='int', type=int, help='an integer in the range 1..3')
+        'method', metavar='int', type=int, help='an integer in the range 0..3')
     #parser.add_argument(
     #    'num_features', metavar='float', type=int, help='an integer , number of features')
     #parser.add_argument(
@@ -27,9 +27,9 @@ if __name__ == "__main__":
                     help="submit the results")
     args = parser.parse_args()
     method = args.method
-    num_features = 10 #args.num_features
-    lambda_user = 0.1 #args.lambda_user
-    lambda_item = 0.7 #args.lambda_item
+    num_features = 2 #args.num_features
+    lambda_user = 0.01 #args.lambda_user
+    lambda_item = 0.01 #args.lambda_item
     gamma = 0.01 #args.gamma
     
     ##======= Load data ======##
@@ -47,7 +47,7 @@ if __name__ == "__main__":
     print("Splitting data into train and test sets")
     num_items_per_user = np.array((ratings != 0).sum(axis=0)).flatten()
     num_users_per_item = np.array((ratings != 0).sum(axis=1).T).flatten()
-    valid_ratings, train, test = split_data(ratings, num_items_per_user, num_users_per_item, min_num_ratings=1, p_test=0.25)
+    valid_ratings, train, test = split_data(ratings, num_items_per_user, num_users_per_item, min_num_ratings=1, p_test=0.1)
 
     ##===Train model=======##
     print("Training model")
@@ -64,6 +64,10 @@ if __name__ == "__main__":
     elif method == 2:
         ## CCD    
         [train_rmse, test_rmse, user_features, item_features] = CCD(train, test, 
+                                                                num_features, lambda_user, lambda_item)
+    elif method == 3:
+        ## CCD++    
+        [train_rmse, test_rmse, user_features, item_features] = CCDplus(train, test, 
                                                                 num_features, lambda_user, lambda_item)
     else:
         print("Incorrect method, 0-SGD, 1-ALS, 2-CCD")
