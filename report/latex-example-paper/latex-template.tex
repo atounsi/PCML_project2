@@ -27,6 +27,7 @@
 
 \subsection{Brief description of data}
 
+
 \subsection{Baseline methods}
 \subsubsection{Global Mean}
 \subsubsection{User Mean}
@@ -38,10 +39,50 @@
 
 
 \subsection{Models and Methods}
-\subsubsection{Matrix factorisation with SGD}
-\subsubsection{Matrix factorisation with ALS}
-\subsubsection{Some other method}
+\subsubsection{Matrix factorisation}
+Given the items $\mathbf{d = 1,2...D}$ and the users $\mathbf{n = 1,2...N}$, let $\mathbf{X}$ be the $\mathbf{DxN}$ data matrix containing all the rating entries.
 
+Matrix factorization models map both users and items to a joint latent factor space of dimensionality $K$, such that user-item interactions are modeled as inner products in that space. The aim is to determine the two matrices $\mathbf{W}$, $\mathbf{Z}$ such that the data matrix $\mathbf{X}$ is approximated by 
+
+\begin{equation}
+X \approx W Z^{T}
+\end{equation}  
+
+where  $\mathbf{W}$ and $\mathbf{Z}$ are matrices of dimensions $\mathbf{DxK}$ and $\mathbf{NxK}$ respectively and 
+$\mathbf{K}$ $<<$ $\mathbf{D, N}$. Each row of $\mathbf{W}$ and $\mathbf{Z}$ is the feature representation of a movie and a user respectively.
+
+In general, the matrix $\mathbf{X}$ is very sparse. Let $\Omega$ be the indices of the observed ratings of the input matrix $\mathbf{X}$. The objective is to determine the matrices $\mathbf{W}$ and $\mathbf{Z}$ such that the following cost function is minimised.
+\begin{equation}
+min_{W,Z} L(W, Z) = \frac{1}{2}  \sum_{(d,n \in \Omega)} [x_{dn} - (WZ^{T}_{dn})]^2
+\end{equation}
+
+Further in order to avoid over-fitting, we can use regularisation and penalise arbitrarily large entries in $\mathbf{W}$ and $\mathbf{Z}$. In this case, we will minimise the following cost function,
+
+\begin{equation}
+\frac{1}{2}  \sum_{(d,n \in \Omega)} [x_{dn} - (WZ^{T}_{dn})]^2 + \frac{\lambda_{w}}{2} \parallel W \parallel ^{2}_{Frob} + \frac{\lambda_{z}}{2} \parallel Z \parallel ^{2}_{Frob} 
+\end{equation}
+where $\lambda_{w}$, $\lambda_{z}$ $>$ $\mathbf{0}$ are scalars.
+
+The above minimisation can be done using multiple methods. In this work, we use Stochastic Gradient Descent, Alternating least squares and the Coordinate descent methods to determine the matrices $\mathbf{W}$ and $\mathbf{Z}$.
+
+
+\begin{itemize}
+
+\item{Stochastic Gradient Descent}
+In this method, for each rating in training set, we predict $\mathbf{x_{d,n}}$ and compute the prediction error as 
+\begin{equation}
+e_{dn} = x_{dn} - (WZ^{T})_{dn}
+\end{equation}
+The updates can then be computed as 
+\begin{equation}
+
+\end{equation}
+
+\item{Alternating Least Squares}
+\item{Coordinate Descent}
+
+
+\end{itemize}
 
 \subsection{Results}
 \subsubsection{Baseline performance}
