@@ -5,7 +5,7 @@
 
 
 \begin{document}
-\title{Movie Recommender System}
+\title{Recommender System}
 
 \author{
    Asmae Tounsi, Lukas Moser, Deepak Karkala \\
@@ -48,9 +48,35 @@
 \subsubsection{Matrix factorisation with SGD}
 (Plot cross validation results)
 \begin{itemize}
+
 \item Number of features: K
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=\columnwidth]{figures/sgd_cv_numFeatures}
+  \caption{Cross validation: Number of features in Matrix factorisation with SGD.}
+  \vspace{-3mm}
+  \label{fig:sgd_cv_numFeatures}
+\end{figure}
+
 \item Regularisation parameter: $\lambda_{user}$
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=\columnwidth]{figures/sgd_cv_lambdaUser}
+  \caption{Cross validation: $\lambda_{user}$ in Matrix factorisation with SGD.}
+  \vspace{-3mm}
+  \label{fig:sgd_cv_lambdaUser}
+\end{figure}
+
 \item Regularisation parameter: $\lambda_{item}$
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=\columnwidth]{figures/sgd_cv_lambdaItem}
+  \caption{Cross validation: $\lambda_{item}$ in Matrix factorisation with SGD.}
+  \vspace{-3mm}
+  \label{fig:sgd_cv_lambdaItem}
+\end{figure}
+
+
 \item Learning rate $\gamma$
 \end{itemize}
 \subsubsection{Matrix factorisation with ALS}

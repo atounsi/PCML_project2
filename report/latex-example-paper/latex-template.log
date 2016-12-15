@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdflatex 2015.10.10)  6 DEC 2016 11:58
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdflatex 2015.10.10)  15 DEC 2016 10:59
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -303,6 +303,37 @@ LaTeX Font Info:    External font `cmex10' loaded for size
 LaTeX Font Info:    External font `cmex10' loaded for size
 (Font)              <5> on input line 51.
 
+<figures/sgd_cv_numFeatures.png, id=92, 433.62pt x 289.08pt>
+File: figures/sgd_cv_numFeatures.png Graphic file (type png)
+
+<use figures/sgd_cv_numFeatures.png>
+Package pdftex.def Info: figures/sgd_cv_numFeatures.png used on input line 55.
+(pdftex.def)             Requested size: 243.91125pt x 162.60709pt.
+
+<figures/sgd_cv_lambdaUser.png, id=94, 433.62pt x 289.08pt>
+File: figures/sgd_cv_lambdaUser.png Graphic file (type png)
+
+<use figures/sgd_cv_lambdaUser.png>
+Package pdftex.def Info: figures/sgd_cv_lambdaUser.png used on input line 64.
+(pdftex.def)             Requested size: 243.91125pt x 162.60709pt.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <8> on input line 65.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <6> on input line 65.
+
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
+<figures/sgd_cv_lambdaItem.png, id=95, 433.62pt x 289.08pt>
+File: figures/sgd_cv_lambdaItem.png Graphic file (type png)
+
+<use figures/sgd_cv_lambdaItem.png>
+Package pdftex.def Info: figures/sgd_cv_lambdaItem.png used on input line 73.
+(pdftex.def)             Requested size: 243.91125pt x 162.60709pt.
+
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
 
 ** Conference Paper **
 Before submitting the final camera ready copy, remember to:
@@ -314,51 +345,46 @@ Before submitting the final camera ready copy, remember to:
  uses only Type 1 fonts and that every step in the generation
  process uses the appropriate paper size.
 
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 73.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 99.
 [1{/usr/local/texlive/2015/texmf-var/fonts/map/pdftex/updmap/pdftex.map}
 
 
+ <./figures/sgd_cv_numFeatures.png> <./figures/sgd_cv_lambdaUser.png> <./figure
+s/sgd_cv_lambdaItem.png>]
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 99.
+ (./latex-template.aux)
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 99.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 99.
+Package rerunfilecheck Info: File `latex-template.out' has not changed.
+(rerunfilecheck)             Checksum: 466D6AE7D67A735F1322033F97DF0C31;1580.
 
-]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 73.
 
-(./latex-template.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 73.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 73.
+LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
 
-
-Package rerunfilecheck Warning: File `latex-template.out' has changed.
-(rerunfilecheck)                Rerun to get outlines right
-(rerunfilecheck)                or use package `bookmark'.
-
-Package rerunfilecheck Info: Checksums for `latex-template.out':
-(rerunfilecheck)             Before: 23978E9DC2181A3023A88760C23A9614;1627
-(rerunfilecheck)             After:  466D6AE7D67A735F1322033F97DF0C31;1580.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 73.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 99.
  ) 
 Here is how much of TeX's memory you used:
- 5775 strings out of 493089
- 89525 string characters out of 6134841
- 175147 words of memory out of 5000000
- 9226 multiletter control sequences out of 15000+600000
- 34691 words of font info for 64 fonts, out of 8000000 for 9000
+ 5804 strings out of 493089
+ 90145 string characters out of 6134841
+ 175025 words of memory out of 5000000
+ 9242 multiletter control sequences out of 15000+600000
+ 36514 words of font info for 70 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 29i,8n,28p,209b,309s stack positions out of 5000i,500n,10000p,200000b,80000s
-pdfTeX warning (dest): name{section*.1} has been referenced but does not exis
-t, replaced by a fixed one
-
-{/usr/local/texlive/2015/texmf-dist/fonts/enc/dvips/base/8r.enc}</usr/local/tex
-live/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/texl
+ 29i,8n,28p,209b,321s stack positions out of 5000i,500n,10000p,200000b,80000s
+{/usr/local/texlive/2015/texmf-dist/fonts/enc/dvips/base/8r.enc}</usr/local/t
+exlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/te
+xlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></usr/local/texl
 ive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/local/texliv
-e/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/local/texlive/
-2015/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/local/texlive/2015/texmf
--dist/fonts/type1/urw/times/utmbi8a.pfb></usr/local/texlive/2015/texmf-dist/fon
-ts/type1/urw/times/utmr8a.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/u
-rw/times/utmri8a.pfb>
-Output written on latex-template.pdf (1 page, 70187 bytes).
+e/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/local/texlive/
+2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/local/texlive/20
+15/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/local/texlive/2015/texmf-d
+ist/fonts/type1/urw/times/utmbi8a.pfb></usr/local/texlive/2015/texmf-dist/fonts
+/type1/urw/times/utmr8a.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/urw
+/times/utmri8a.pfb>
+Output written on latex-template.pdf (1 page, 151521 bytes).
 PDF statistics:
- 141 PDF objects out of 1000 (max. 8388607)
- 129 compressed objects within 2 object streams
- 25 named destinations out of 1000 (max. 500000)
- 185 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 155 PDF objects out of 1000 (max. 8388607)
+ 135 compressed objects within 2 object streams
+ 27 named destinations out of 1000 (max. 500000)
+ 192 words of extra memory for PDF output out of 10000 (max. 10000000)
 
