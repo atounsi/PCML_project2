@@ -80,6 +80,9 @@ def cross_validation(ratings, K, method, num_items_per_user, num_users_per_item,
         elif method == 2:
             [train_rmse, validation_rmse, user_feature, item_features] = CCD(training, validation, 
                                                                 num_features, lambda_user, lambda_item)
+        elif method == 3:
+            [train_rmse, validation_rmse, user_feature, item_features] = CCDplus(training, validation, 
+                                                                num_features, lambda_user, lambda_item)
         else:
             print("Incorrect method, 0-SGD, 1-ALS, 2-CCD")
         
@@ -87,3 +90,119 @@ def cross_validation(ratings, K, method, num_items_per_user, num_users_per_item,
         validation_rmse_arr.append(validation_rmse)
         
     return train_rmse_arr, validation_rmse_arr
+
+######### lucaz version
+
+#need k be multiple of row*col
+def k_indices_set_generator(ratings, k=5, seed=48):
+    
+    # set seed
+    np.random.seed(seed)
+    
+    # generate random indices
+    row = ratings.shape[0]
+    col = ratings.shape[1]
+    num = row*col
+    
+    indices = np.random.permutation(num)
+    
+    index_split = int(num/k)
+    k_indices_set = np.zeros((k,index_split),dtype=np.int)   
+    
+    for i in range(k):    
+        id_start = index_split*i
+        id_end = index_split*(i+1)
+        k_indices_set[i] = indices[id_start:id_end]
+    
+    return k_indices_set
+
+def split_data_k(ratings, k_indices_set, k):
+    
+    K, index_split = k_indices_set.shape
+    index_tr = k_indices_set[np.where(np.arange(K) != (k-1))].reshape(((K-1)*index_split,1))[:,0]
+    index_te = k_indices_set[k-1]
+    
+    row = ratings.shape[0]
+    col = ratings.shape[1]
+    num = row*col
+    
+    rat_arr = ratings.toarray()
+    
+    # reshaping
+    valid_array_te = np.copy(rat_arr).reshape((num,1))
+    valid_array_tr = np.copy(rat_arr).reshape((num,1))  
+    
+    # create split
+    train = valid_array_tr
+    train[index_te] = 0
+    train = train.reshape((row,col))
+    
+    test = valid_array_te
+    test[index_tr] = 0
+    test = test.reshape((row,col))
+    
+    # ***************************************************
+    
+    #print (valid_ratings, train, test)
+    return train, test
+
+def split_data_k(ratings, k_indices_set, k):
+    
+    K, index_split = k_indices_set.shape
+    index_tr = k_indices_set[np.where(np.arange(K) != (k-1))].reshape(((K-1)*index_split,1))[:,0]
+    index_te = k_indices_set[k-1]
+    
+    row = ratings.shape[0]
+    col = ratings.shape[1]
+    num = row*col
+    
+    rat_arr = ratings.toarray()
+    
+    # reshaping
+    valid_array_te = np.copy(rat_arr).reshape((num,1))
+    valid_array_tr = np.copy(rat_arr).reshape((num,1))  
+    
+    # create split
+    train = valid_array_tr
+    train[index_te] = 0
+    train = train.reshape((row,col))
+    
+    test = valid_array_te
+    test[index_tr] = 0
+    test = test.reshape((row,col))
+    
+    # ***************************************************
+    
+    #print (valid_ratings, train, test)
+    return sp.lil_matrix(train), sp.lil_matrix(test)
+
+def cross_validation_minimalist(ratings, method, K, num_features=5, lambda_user=0.01, lambda_item=0.01, gamma = 0.01):
+    
+    k_indices_set = k_indices_set_generator(ratings,K)    
+
+    train_rmse_arr=[]
+    validation_rmse_arr=[]
+        
+    for k in range(K):
+        print('Running {}th fold in {} folds'.format(k+1, K))
+        train_cross,test_cross = split_data_k(ratings, k_indices_set, k+1)
+
+        ### Matrix factorization using SGD/ALS/CCD
+        if method == 0:  ## SGD
+            [train_rmse, validation_rmse, user_feature, item_features] = matrix_factorization_SGD(train_cross,
+                                                 test_cross, num_features, lambda_user, lambda_item, gamma) 
+        elif method == 1:  ## ALS
+            [train_rmse, validation_rmse, user_feature, item_features] = ALS(train_cross,
+                                                    test_cross, num_features, lambda_user, lambda_item) 
+        elif method == 2:
+            [train_rmse, validation_rmse, user_feature, item_features] = CCD(train_cross, test_cross, 
+                                                                num_features, lambda_user, lambda_item)
+        elif method == 3:
+            [train_rmse, validation_rmse, user_feature, item_features] = CCDplus(train_cross, test_cross, 
+                                                                num_features, lambda_user, lambda_item)
+        else:
+            print("Incorrect method, 0-SGD, 1-ALS, 2-CCD")
+        train_rmse_arr.append(train_rmse)
+        validation_rmse_arr.append(validation_rmse)
+        
+    return train_rmse,validation_rmse_arr
