@@ -116,7 +116,7 @@ def k_indices_set_generator(ratings, k=5, seed=48):
     
     return k_indices_set
 
-def split_data_k(ratings, k_indices_set, k):
+def split_data_k_numpy(ratings, k_indices_set, k):
     
     K, index_split = k_indices_set.shape
     index_tr = k_indices_set[np.where(np.arange(K) != (k-1))].reshape(((K-1)*index_split,1))[:,0]
@@ -185,7 +185,11 @@ def cross_validation_minimalist(ratings, method, K, num_features=5, lambda_user=
         
     for k in range(K):
         print('Running {}th fold in {} folds'.format(k+1, K))
-        train_cross,test_cross = split_data_k(ratings, k_indices_set, k+1)
+        
+        if method < 4 :
+            train_cross,test_cross = split_data_k(ratings, k_indices_set, k+1)
+        else: 
+            train_cross,test_cross = split_data_k_numpy(ratings, k_indices_set, k+1)
 
         ### Matrix factorization using SGD/ALS/CCD
         if method == 0:  ## SGD
@@ -200,7 +204,16 @@ def cross_validation_minimalist(ratings, method, K, num_features=5, lambda_user=
         elif method == 3:
             [train_rmse, validation_rmse, user_feature, item_features] = CCDplus(train_cross, test_cross, 
                                                                 num_features, lambda_user, lambda_item)
+        elif method == 4:
+        ## ALS_numpy   
+            [pred, train_rmse, validation_rmse] =                         ALS_numpy(train_cross, test_cross, 
+                                                                num_features, lambda_user, lambda_item)
+        elif method == 5:
+        ## ALS_biased   
+            [pred, train_rmse, validation_rmse] =                         ALS_biased(train_cross, test_cross,
+                                                                num_features, lambda_user, lambda_item)
         else:
+            
             print("Incorrect method, 0-SGD, 1-ALS, 2-CCD")
         train_rmse_arr.append(train_rmse)
         validation_rmse_arr.append(validation_rmse)
