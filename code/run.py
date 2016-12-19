@@ -10,6 +10,7 @@ from submit_predictions import submit_predictions
 from recommender import *
 import argparse
 from cross_validation import *
+from linear_corrector import *
 
 
 if __name__ == "__main__":
@@ -80,7 +81,9 @@ if __name__ == "__main__":
         ##[train_rmse, test_rmse, user_features, item_features] = CCDplus(train, test, 
         ##                                                        num_features, lambda_user, lambda_item)
         K=10
-        [train_rmse, test_rmse, user_features, item_features] = cross_validation_run(ratings, method, K, num_features, lambda_user, lambda_it    elif method == 4:
+        [train_rmse, test_rmse, user_features, item_features] = cross_validation_run(ratings, method, K, num_features, lambda_user, lambda_it
+         pred = item_features.dot(user_features);
+    elif method == 4:
         ## ALS_numpy   
         [pred, train_rmse, test_rmse] =                         ALS_numpy(train, test, 
                                                                 num_features, lambda_user, lambda_item)
@@ -107,8 +110,6 @@ if __name__ == "__main__":
     
     pred_corrected =  bound_corrector(pred)  
     
-        
-    
 
     print("RMSE on train data: {}.".format(train_rmse))
     print("RMSE on test data: {}.".format(test_rmse))
@@ -128,12 +129,13 @@ if __name__ == "__main__":
         nz = list(zip(nz_row, nz_col))
 
                 
-        for i in range(len(nz_row)):
-            prediction[nz_row[i], nz_col[i]] = np.dot(item_features[nz_row[i],:], user_features[:,nz_col[i]])
-            if prediction[nz_row[i], nz_col[i]] > 5:
-                prediction[nz_row[i], nz_col[i]] = 5
-            elif prediction[nz_row[i], nz_col[i]] < 1:
-                prediction[nz_row[i], nz_col[i]] = 1
+        for i in range(len(nz_row)):                                                                            
+        #    prediction[nz_row[i], nz_col[i]] = np.dot(item_features[nz_row[i],:], user_features[:,nz_col[i]])
+        #    if prediction[nz_row[i], nz_col[i]] > 5:
+        #        prediction[nz_row[i], nz_col[i]] = 5
+        #    elif prediction[nz_row[i], nz_col[i]] < 1:
+        #        prediction[nz_row[i], nz_col[i]] = 1
+                                                                                     
 
         ##==== Create submission file=====##
         print("Creating submission file")
