@@ -253,5 +253,7 @@ def cross_validation_run(ratings, method, K, num_features=5, lambda_user=0.01, l
             itm_ft_min = item_features
             vr_min = validation_rmse
             tr_min = train_rmse
+            train = train_cross
+            test = test_cross
         
-    return tr_min,vr_min,us_ft_min,itm_ft_min
+    return train,test,tr_min,vr_min,us_ft_min,itm_ft_min

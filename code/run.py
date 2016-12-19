@@ -57,9 +57,9 @@ if __name__ == "__main__":
     print("Splitting data into train and test sets")
     num_items_per_user = np.array((ratings != 0).sum(axis=0)).flatten()
     num_users_per_item = np.array((ratings != 0).sum(axis=1).T).flatten()
-    if method < 4 :
+    if method < 3 :
         valid_ratings, train, test = split_data(ratings, num_items_per_user, num_users_per_item, min_num_ratings=1, p_test=0.1)
-    else: #numpy style
+    elif method > 4: #numpy style
         train, test = split_data_numpy(ratings, p_test = 0.1, seed=12) 
         
     ##===Train model=======##
@@ -76,15 +76,15 @@ if __name__ == "__main__":
         [train_rmse, test_rmse, user_features, item_features] = ALS(train, test, num_features, lambda_user, lambda_item) 
     elif method == 2:
         ## CCD    
-        [train_rmse, test_rmse, user_features, item_features] = CCD(train, test, 
+        [train, test, train_rmse, test_rmse, user_features, item_features] = CCD(train, test, 
                                                                 num_features, lambda_user, lambda_item)
     elif method == 3:
         ## CCD++    
         ##[train_rmse, test_rmse, user_features, item_features] = CCDplus(train, test, 
         ##                                                        num_features, lambda_user, lambda_item)
         K=10
-        [train_rmse, test_rmse, user_features, item_features] = cross_validation_run(ratings, method, K, num_features, lambda_user, lambda_it
-         pred = item_features.dot(user_features);
+        [train,test,train_rmse, test_rmse, user_features, item_features] = cross_validation_run(ratings, method, K, num_features, lambda_user, lambda_item)
+        pred = item_features.dot(user_features)
     elif method == 4:
         ## ALS_numpy   
         [pred, train_rmse, test_rmse] =                         ALS_numpy(train, test, 
@@ -109,10 +109,10 @@ if __name__ == "__main__":
     
     '''
     
-    pred_ready = linear_corrector(pred, train, test)
+    #pred_ready = linear_corrector(pred, train.toarray(), test.toarray())
     
     
-    pred_corrected =  bound_corrector(pred_ready)  
+    pred_corrected =  bound_corrector(pred)  
     
 
     print("RMSE on train data: {}.".format(train_rmse))
