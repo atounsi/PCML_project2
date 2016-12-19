@@ -36,3 +36,40 @@ def split_data(ratings, num_items_per_user, num_users_per_item,
     #print("Total number of nonzero elements in train data:{v}".format(v=train.nnz))
     #print("Total number of nonzero elements in test data:{v}".format(v=test.nnz))
     return valid_ratings, train, test
+
+def split_data_numpy(ratings, p_test=0.1, seed=45):
+    '''Same as split_data but numpy style
+    
+    Returns train and test data.    
+    '''
+    
+    # set seed
+    np.random.seed(seed)
+    
+    # generate random indices
+    row, col = ratings.shape
+    num = row*col
+    
+    indices = np.random.permutation(num)
+    
+    #split and share indices between train and test
+    split_index = int(np.floor(p_test * num))    
+    train_indices = indices[:split_index]
+    test_indices = indices[split_index:]  
+    
+    
+    rat_arr = ratings.toarray()
+    
+    # reshaping put all in 1-D
+    test = np.copy(rat_arr).reshape((num,1))
+    train = np.copy(rat_arr).reshape((num,1))  
+    
+    # create split
+    train[train_indices] = 0
+    test[test_indices] = 0
+    
+    # going back to 2-D
+    train = train.reshape((row,col))    
+    test = test.reshape((row,col))
+    
+    return train, test
