@@ -88,6 +88,14 @@ if __name__ == "__main__":
         ## ALS_biased   
         [pred, train_rmse, test_rmse] =                         ALS_biased(train, test, 
                                                                 num_features, lambda_user, lambda_item)
+    elif method == 4:
+        ## ALS_numpy   
+        [pred, train_rmse, test_rmse] =                         ALS_numpy(train, test, 
+                                                                num_features, lambda_user, lambda_item)
+    elif method == 5:
+        ## ALS_biased   
+        [pred, train_rmse, test_rmse] =                         ALS_biased(train, test, 
+                                                                num_features, lambda_user, lambda_item)
     else:
         print("Incorrect method, 0-SGD, 1-ALS, 2-CCD ...")
         
