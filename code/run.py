@@ -7,6 +7,8 @@ from helpers import load_data, preprocess_data
 from split_data import *
 from preprocess import preprocess
 from submit_predictions import submit_predictions
+
+from linear_corrector import *
 from recommender import *
 import argparse
 
@@ -86,10 +88,12 @@ if __name__ == "__main__":
     '''
     need pred train test (tried with numpy style)
     
-    pred_ready = linear_corrector(pred, train, test)
     '''
     
-    pred_corrected =  bound_corrector(pred)  
+    pred_ready = linear_corrector(pred, train, test)
+    
+    
+    pred_corrected =  bound_corrector(pred_ready)  
     
         
     
@@ -113,8 +117,10 @@ if __name__ == "__main__":
 
                 
         for i in range(len(nz_row)):
-            prediction[nz_row[i], nz_col[i]] = np.dot(item_features[nz_row[i],:], user_features[:,nz_col[i]])
-
+            if method < 4 :
+                prediction[nz_row[i], nz_col[i]] = np.dot(item_features[nz_row[i],:], user_features[:,nz_col[i]])
+            else:
+                prediction[nz_row[i], nz_col[i]] = pred_corrected[nz_row[i],nz_col[i]]
 
         ##==== Create submission file=====##
         print("Creating submission file")
