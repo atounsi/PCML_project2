@@ -298,8 +298,8 @@ def init_MF_CCD_simple(train, num_features):
     # return init_MF_ALS(train, num_features)
     # ***************************************************
     num_items, num_users = train.shape
-    item_features = np.zeros((num_items,num_features))
-    user_features = np.zeros((num_features,num_users))
+    item_features = np.ones((num_items,num_features))
+    user_features = np.ones((num_features,num_users))
     # ***************************************************
     return 1.0*user_features,1.0*item_features
 
@@ -413,6 +413,118 @@ def CCDplus(train, test, num_features=10, lambda_user=0.1, lambda_item=0.7, max_
     
     num_items,num_users = train.shape
     residual = train - item_features.dot(user_features)
+
+    for it in np.arange(max_it):
+        for feature in np.arange(num_features):
+            # one rank problem
+            add = np.dot(np.c_[item_features[:,feature]],np.c_[user_features[feature,:]].T)
+            feature_residual = residual + add
+            
+            # solving this problem using ccd
+            u, v = CCD_simple(feature_residual, nz_train, nz_user_itemindices, nz_item_userindices, nnz_items_per_user, nnz_users_per_item, lambda_user, lambda_item, max_it_inter)
+
+
+            # update
+            user_features[feature,:] = u
+            item_features[:,feature] = v.T
+            
+            residual = feature_residual - v.dot(u)
+            
+        
+        train_rmse = compute_error_residual(residual, nz_train)
+        print("iter: {}, RMSE on training set: {}.".format(it, train_rmse))        
+        error_list.append(train_rmse)
+        if abs(error_list[-1]-error_list[-2])<stop_criterion:
+            break
+
+    test_rmse = compute_error(test, user_features, item_features, nz_test)
+    print("RMSE on test data: {}.".format(test_rmse))
+    
+    return train_rmse, test_rmse, user_features, item_features
+
+def init_MF_CCD_biased(train, num_features, factor_features=0.1, factor_biases=1):
+    num_items, num_users = train.shape
+    user_features = factor_features*np.ones((num_users,num_features))
+    item_features = factor_features*np.ones((num_items,num_features))
+    user_biases = factor_biases*np.array(train.sum(axis=0)/train.getnnz(axis=0)) #np.ones(num_users)
+    item_biases = factor_biases*np.array(train.sum(axis=1)/train.getnnz(axis=1)) #np.ones(num_items)
+    return user_features, item_features, user_biases, item_biases
+
+def data_user_biased(data, user_biases):
+    data_user_biased = data - user_biases
+    return data_user_biased
+def data_item_biased(data, item_biases):
+    data_item_biased = (data.T - item_biases).T
+    return  data_item_biased
+
+def prediction_biased(item_features, item_biases, user_features, user_biases):    
+    prediction_data =    user_features.dot(item_features.T).T
+    prediction = ((prediction_data + user_biases).T + item_biases).T       
+    return prediction
+
+# Cyclic coordinate descent
+def CCD_simple_biased(train, nz_train, user_biases, item_biases, nz_user_itemindices, nz_item_userindices, nnz_items_per_user, nnz_users_per_item, lambda_user=0.1, lambda_item=0.7, max_it = 100):
+    """Cyclic coordinate descent (CCD) algorithm."""
+    # define parameters
+    stop_criterion = 1e-4
+    change = 1
+    error_list = [0, 0]
+    
+    # set seed
+    np.random.seed(988)
+
+    # init CCD
+    user_features, item_features = init_MF_CCD_biased(train, 1)
+        
+    # ***************************************************    
+    #print("learn one feature using CCD...")
+    
+    num_items,num_users = train.shape
+    residual = train - item_features.dot(user_features)
+    
+    for it in np.arange(max_it):
+        for user in np.arange(num_users):
+            [residual,user_features] = update_user_CCD_biased(residual, user_features, item_features, user, lambda_user, nnz_items_per_user, nz_user_itemindices)
+            
+        for item in np.arange(num_items):
+            [residual,item_features] = update_item_CCD_biased(residual, user_features, item_features, item, lambda_item, nnz_users_per_item, nz_item_userindices)
+        
+        train_rmse = compute_error_residual(residual, nz_train)
+        #print("iter: {}, RMSE on training set: {}.".format(it, train_rmse))        
+        error_list.append(train_rmse)
+        if abs(error_list[-1]-error_list[-2])<stop_criterion:
+            break
+    
+    return user_features, item_features
+
+# Feature wise update - Cyclic coordinate descent biased
+def CCDplus_biased(train, test, num_features=10, lambda_user=0.1, lambda_item=0.7, max_it_inter = 100):
+    """Cyclic coordinate descent (CCD) algorithm."""
+    # define parameters
+    stop_criterion = 1e-4
+    change = 1
+    error_list = [0, 0]
+    
+    # set seed
+    np.random.seed(988)
+
+    # init CCD++
+    user_features, item_features, user_biases, item_biases = init_MF_CCD_biased(train, num_features)
+    
+    # ***************************************************
+    nz_row, nz_col = test.nonzero()
+    nz_test = list(zip(nz_row, nz_col))
+    nz_train, nz_row_colindices, nz_col_rowindices = build_index_groups(train)
+    _,nz_user_itemindices = map(list,zip(*nz_col_rowindices))
+    nnz_items_per_user = [len(i) for i in nz_user_itemindices]
+    _,nz_item_userindices = map(list,zip(*nz_row_colindices))
+    nnz_users_per_item = [len(i) for i in nz_item_userindices]
+    max_it = 1e3
+    
+    print("learn the matrix factorization using CCD++...")
+    
+    num_items,num_users = train.shape
+    residual = train - prediction_biased(item_features, item_biases, user_features, user_biases)
 
     for it in np.arange(max_it):
         for feature in np.arange(num_features):

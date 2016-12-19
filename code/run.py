@@ -9,6 +9,8 @@ from preprocess import preprocess
 from submit_predictions import submit_predictions
 from recommender import *
 import argparse
+from cross_validation import *
+
 
 if __name__ == "__main__":
 
@@ -27,9 +29,9 @@ if __name__ == "__main__":
                     help="submit the results")
     args = parser.parse_args()
     method = args.method
-    num_features = 2 #args.num_features
+    num_features = 1 #args.num_features
     lambda_user = 0.01 #args.lambda_user
-    lambda_item = 0.01 #args.lambda_item
+    lambda_item = 0.05 #args.lambda_item
     gamma = 0.01 #args.gamma
     
     ##======= Load data ======##
@@ -44,10 +46,10 @@ if __name__ == "__main__":
     ##========================##
 
     ##====Split data into training and test data sets ====##
-    print("Splitting data into train and test sets")
-    num_items_per_user = np.array((ratings != 0).sum(axis=0)).flatten()
-    num_users_per_item = np.array((ratings != 0).sum(axis=1).T).flatten()
-    valid_ratings, train, test = split_data(ratings, num_items_per_user, num_users_per_item, min_num_ratings=1, p_test=0.1)
+    #print("Splitting data into train and test sets")
+    #num_items_per_user = np.array((ratings != 0).sum(axis=0)).flatten()
+    #num_users_per_item = np.array((ratings != 0).sum(axis=1).T).flatten()
+    #valid_ratings, train, test = split_data(ratings, num_items_per_user, num_users_per_item, min_num_ratings=1, p_test=0.1)
 
     ##===Train model=======##
     print("Training model")
@@ -67,14 +69,16 @@ if __name__ == "__main__":
                                                                 num_features, lambda_user, lambda_item)
     elif method == 3:
         ## CCD++    
-        [train_rmse, test_rmse, user_features, item_features] = CCDplus(train, test, 
-                                                                num_features, lambda_user, lambda_item)
+        ##[train_rmse, test_rmse, user_features, item_features] = CCDplus(train, test, 
+        ##                                                        num_features, lambda_user, lambda_item)
+        K=10
+        [train_rmse, test_rmse, user_features, item_features] = cross_validation_run(ratings, method, K, num_features, lambda_user, lambda_item)
     else:
         print("Incorrect method, 0-SGD, 1-ALS, 2-CCD")
 
     print("RMSE on train data: {}.".format(train_rmse))
     print("RMSE on test data: {}.".format(test_rmse))
-
+    
 
     if args.submit:
         ##===Load test data====##
@@ -91,7 +95,10 @@ if __name__ == "__main__":
 
         for i in range(len(nz_row)):
             prediction[nz_row[i], nz_col[i]] = np.dot(item_features[nz_row[i],:], user_features[:,nz_col[i]])
-
+            if prediction[nz_row[i], nz_col[i]] > 5:
+                prediction[nz_row[i], nz_col[i]] = 5
+            elif prediction[nz_row[i], nz_col[i]] < 1:
+                prediction[nz_row[i], nz_col[i]] = 1
 
         ##==== Create submission file=====##
         print("Creating submission file")
