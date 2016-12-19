@@ -89,13 +89,15 @@ def init_MF_b(train, num_features):
     """init the parameter for matrix factorization."""
     num_items, num_users = train.shape
     
-    user_features = 0.1* np.ones ((num_features, num_users)) 
-    item_features = 0.1*np.ones ((num_features, num_items)) 
+    user_features = 0.01*np.ones((num_features, num_users)) 
+    item_features = 0.01*np.ones((num_features, num_items)) 
 
     return user_features, item_features
+
+
 def compute_error_b(data, user_features, item_features, nz, b_u, b_i, b_g):
 
-        # ***************************************************
+    # ***************************************************
     real_label = np.array([data[d,n] for (d,n) in nz])
     pred_array = np.dot(item_features.T,user_features) + b_u + b_i + b_g
     prediction = np.array([pred_array[d,n] for (d,n) in nz])
@@ -103,31 +105,48 @@ def compute_error_b(data, user_features, item_features, nz, b_u, b_i, b_g):
     # ***************************************************
     return rmse
 
+def user_mean(data):
+    nnz_u = np.copy(data)
+    nnz_u[np.where( data > 0 )] = 1
+    return train.sum(axis=0) / nnz_u.sum(axis=0)
+
+def item_mean(data):    
+    nnz_i = np.copy(data)
+    nnz_i[np.where( data > 0 )] = 1
+    return train.sum(axis=1) / nnz_i.sum(axis=1)
+
+def global_mean(data):
+    return data.sum()/len(np.where( data > 0 ))
+    
+
 def mean_user(train,test):  
     num_items, num_users = train.shape
-    mean =  np.array(train.sum(axis=0)/train.getnnz(axis=0))[0]   
+    mean =  user_mean(train)  
     mean_u = np.ones((num_items,num_users))*mean.T
     return mean_u
 
 def mean_item(train,test):  
     num_items, num_users = train.shape
-    mean =  np.array(train.sum(axis=1).T/train.getnnz(axis=1))[0]   
+    mean = item_mean(train)  
     mean_i = (np.ones((num_items,num_users)).T*mean).T
     return mean_i
 
 def mean_global(train,test):
     num_items, num_users = train.shape
-    mean = (train.sum())/train.nnz
+    mean = global_mean(train)
     mean_g = np.ones((num_items,num_users))*mean
     return mean_g
 
-def matrix_factorization_SGD_b(train, test):
+def prediction_b(item_features, user_features, b_u, b_i)
+    item_features.T.dot(user_features)+b_u+b_i+b_g
+
+
+
+
+def matrix_factorization_SGD_b(train, test,num_features = 8,lambda_user = 0.05, lambda_item = 0.10 ,gamma = 0.01 max_it = 10):
     """matrix factorization by SGD."""
-    # define parameters
-    gamma = 0.01
-    num_features = 8   # K in the lecture notes =20
-    lambda_user = 0.05
-    lambda_item = 0.10
+
+
     it = 0    # number of full passes through the train set # use test rmse
     errors = [0]
     
@@ -160,7 +179,7 @@ def matrix_factorization_SGD_b(train, test):
     
         
     print("learn the matrix factorization using SGD...")
-    while ( error > error_new and it < 10):        
+    while ( error > error_new and it < max_it):        
         # shuffle the training rating indices
         np.random.shuffle(nz_train)
         
@@ -306,7 +325,7 @@ def update_user_biased_feature(train, item_features, item_biases, lambda_user, n
 
 
 
-def ALS_biased(train, test, num_features = 2, lambda_user = 0.01, lambda_item = 0.01, max_it=25, stop_criterion = 1e-7):
+def ALS_biased(train, test, num_features = 2, lambda_user = 0.01, lambda_item = 0.01, max_it=5, stop_criterion = 1e-7):
     '''als biased version'''
 
     # init ALS_biased

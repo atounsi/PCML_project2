@@ -7,6 +7,8 @@ from helpers import load_data, preprocess_data
 from split_data import *
 from preprocess import preprocess
 from submit_predictions import submit_predictions
+
+from linear_corrector import *
 from recommender import *
 import argparse
 from cross_validation import *
@@ -105,10 +107,12 @@ if __name__ == "__main__":
     '''
     need pred train test (tried with numpy style)
     
-    pred_ready = linear_corrector(pred, train, test)
     '''
     
-    pred_corrected =  bound_corrector(pred)  
+    pred_ready = linear_corrector(pred, train, test)
+    
+    
+    pred_corrected =  bound_corrector(pred_ready)  
     
 
     print("RMSE on train data: {}.".format(train_rmse))
@@ -128,14 +132,12 @@ if __name__ == "__main__":
         nz_row, nz_col = submission_ratings.nonzero()
         nz = list(zip(nz_row, nz_col))
 
-                
-        for i in range(len(nz_row)):                                                                            
-        #    prediction[nz_row[i], nz_col[i]] = np.dot(item_features[nz_row[i],:], user_features[:,nz_col[i]])
-        #    if prediction[nz_row[i], nz_col[i]] > 5:
-        #        prediction[nz_row[i], nz_col[i]] = 5
-        #    elif prediction[nz_row[i], nz_col[i]] < 1:
-        #        prediction[nz_row[i], nz_col[i]] = 1
-                                                                                     
+          
+        for i in range(len(nz_row)):
+            if method < 4 :
+                prediction[nz_row[i], nz_col[i]] = np.dot(item_features[nz_row[i],:], user_features[:,nz_col[i]])
+            else:
+                prediction[nz_row[i], nz_col[i]] = pred_corrected[nz_row[i],nz_col[i]]
 
         ##==== Create submission file=====##
         print("Creating submission file")
