@@ -219,3 +219,41 @@ def cross_validation_minimalist(ratings, method, K, num_features=5, lambda_user=
         validation_rmse_arr.append(validation_rmse)
         
     return train_rmse,validation_rmse_arr
+
+def cross_validation_run(ratings, method, K, num_features=5, lambda_user=0.01, lambda_item=0.01, gamma = 0.01):
+    
+    k_indices_set = k_indices_set_generator(ratings,K)    
+
+    train_rmse_arr=[]
+    validation_rmse_arr=[]
+        
+    for k in range(K):
+        print('Running {}th fold in {} folds'.format(k+1, K))
+        train_cross,test_cross = split_data_k(ratings, k_indices_set, k+1)
+
+        ### Matrix factorization using SGD/ALS/CCD
+        if method == 0:  ## SGD
+            [train_rmse, validation_rmse, user_feature, item_features] = matrix_factorization_SGD(train_cross,
+                                                 test_cross, num_features, lambda_user, lambda_item, gamma) 
+        elif method == 1:  ## ALS
+            [train_rmse, validation_rmse, user_feature, item_features] = ALS(train_cross,
+                                                    test_cross, num_features, lambda_user, lambda_item) 
+        elif method == 2:
+            [train_rmse, validation_rmse, user_feature, item_features] = CCD(train_cross, test_cross, 
+                                                                num_features, lambda_user, lambda_item)
+        elif method == 3:
+            [train_rmse, validation_rmse, user_feature, item_features] = CCDplus(train_cross, test_cross, 
+                                                                num_features, lambda_user, lambda_item)
+        else:
+            print("Incorrect method, 0-SGD, 1-ALS, 2-CCD")
+        train_rmse_arr.append(train_rmse)
+        validation_rmse_arr.append(validation_rmse)
+        if ((k == 1) or (k>1 and validation_rmse_arr[-1]<vr_min)) :
+            us_ft_min = user_feature
+            itm_ft_min = item_features
+            vr_min = validation_rmse
+            tr_min = train_rmse
+            train = train_cross
+            test = test_cross
+        
+    return train,test,tr_min,vr_min,us_ft_min,itm_ft_min

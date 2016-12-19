@@ -11,6 +11,9 @@ from submit_predictions import submit_predictions
 from linear_corrector import *
 from recommender import *
 import argparse
+from cross_validation import *
+from linear_corrector import *
+
 
 if __name__ == "__main__":
 
@@ -29,9 +32,9 @@ if __name__ == "__main__":
                     help="submit the results")
     args = parser.parse_args()
     method = args.method
-    num_features = 2 #args.num_features
+    num_features = 1 #args.num_features
     lambda_user = 0.01 #args.lambda_user
-    lambda_item = 0.01 #args.lambda_item
+    lambda_item = 0.05 #args.lambda_item
     gamma = 0.01 #args.gamma
     
     ##======= Load data ======##
@@ -46,12 +49,17 @@ if __name__ == "__main__":
     ##========================##
 
     ##====Split data into training and test data sets ====##
+    #print("Splitting data into train and test sets")
+    #num_items_per_user = np.array((ratings != 0).sum(axis=0)).flatten()
+    #num_users_per_item = np.array((ratings != 0).sum(axis=1).T).flatten()
+    #valid_ratings, train, test = split_data(ratings, num_items_per_user, num_users_per_item, min_num_ratings=1, p_test=0.1)
+
     print("Splitting data into train and test sets")
     num_items_per_user = np.array((ratings != 0).sum(axis=0)).flatten()
     num_users_per_item = np.array((ratings != 0).sum(axis=1).T).flatten()
-    if method < 4 :
+    if method < 3 :
         valid_ratings, train, test = split_data(ratings, num_items_per_user, num_users_per_item, min_num_ratings=1, p_test=0.1)
-    else: #numpy style
+    elif method > 4: #numpy style
         train, test = split_data_numpy(ratings, p_test = 0.1, seed=12) 
         
     ##===Train model=======##
@@ -68,11 +76,22 @@ if __name__ == "__main__":
         [train_rmse, test_rmse, user_features, item_features] = ALS(train, test, num_features, lambda_user, lambda_item) 
     elif method == 2:
         ## CCD    
-        [train_rmse, test_rmse, user_features, item_features] = CCD(train, test, 
+        [train, test, train_rmse, test_rmse, user_features, item_features] = CCD(train, test, 
                                                                 num_features, lambda_user, lambda_item)
     elif method == 3:
         ## CCD++    
-        [train_rmse, test_rmse, user_features, item_features] = CCDplus(train, test, 
+        ##[train_rmse, test_rmse, user_features, item_features] = CCDplus(train, test, 
+        ##                                                        num_features, lambda_user, lambda_item)
+        K=10
+        [train,test,train_rmse, test_rmse, user_features, item_features] = cross_validation_run(ratings, method, K, num_features, lambda_user, lambda_item)
+        pred = item_features.dot(user_features)
+    elif method == 4:
+        ## ALS_numpy   
+        [pred, train_rmse, test_rmse] =                         ALS_numpy(train, test, 
+                                                                num_features, lambda_user, lambda_item)
+    elif method == 5:
+        ## ALS_biased   
+        [pred, train_rmse, test_rmse] =                         ALS_biased(train, test, 
                                                                 num_features, lambda_user, lambda_item)
     elif method == 4:
         ## ALS_numpy   
@@ -90,17 +109,15 @@ if __name__ == "__main__":
     
     '''
     
-    pred_ready = linear_corrector(pred, train, test)
+    #pred_ready = linear_corrector(pred, train.toarray(), test.toarray())
     
     
-    pred_corrected =  bound_corrector(pred_ready)  
-    
-        
+    pred_corrected =  bound_corrector(pred)  
     
 
     print("RMSE on train data: {}.".format(train_rmse))
     print("RMSE on test data: {}.".format(test_rmse))
-
+    
 
     if args.submit:
         ##===Load test data====##
@@ -115,7 +132,7 @@ if __name__ == "__main__":
         nz_row, nz_col = submission_ratings.nonzero()
         nz = list(zip(nz_row, nz_col))
 
-                
+          
         for i in range(len(nz_row)):
             if method < 4 :
                 prediction[nz_row[i], nz_col[i]] = np.dot(item_features[nz_row[i],:], user_features[:,nz_col[i]])
