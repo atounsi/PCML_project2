@@ -71,7 +71,7 @@ def find_lambda(y, y_test, tX, tX_test):
     rmse_arr=[]
     lambda_arr=[]
 
-    for lambda_ in np.logspace(-5, 3, num=250):
+    for lambda_ in np.logspace(-6, 1, num=250):
         w = ridge_regression(y, tX,lambda_)
         lambda_arr.append(lambda_)
         rmse_arr.append(error_mse(y_test, tX_test, w))
