@@ -43,6 +43,7 @@ def feature_adding(train, test, pred):
 
 #least square
 def error_mse(y, tx, w):
+    """compute error of a linear predicting model"""
     rmse = np.sqrt((1/len(y))*calculate_mse(y,tx.dot(w)))
     return rmse
 
@@ -55,27 +56,32 @@ def ridge_regression(y, tx,lambda_ = 0.1):
     w = np.linalg.solve(tx.T.dot(tx) + reg, tx.T.dot(y))
     return w
 
-def build_poly(x, degree):
-    """
-    Build a polynomial basis function for input data x.
-    The polynomial is built independently for each feature, e.g.
-    for degree = 3 and D = 3, the basis is:
-    x x^2 x^3   y y^2 y^3   z z^2 z^3
-    Therefore, features are not combined together.
-    """
-    # The first feature is not transformed (bias added by "standardize")
-    first = x[:,0].reshape(x.shape[0], 1) # Constant bias
-    x_ = np.delete(x, 0, axis=1)
-    
-    A = np.repeat(x_, degree, axis=1)
-    B = np.tile(np.arange(1, degree + 1), [x_.shape[0], x_.shape[1]])
-    
-    return np.concatenate((first, np.power(A, B)), axis=1)
+def build_poly(tx, degree):
+    """polynomial basis functions for input data x, for j=1 up to j=degree."""
+    row, col = tx.shape            
+    matrix = np.zeros((row, col*degree))
+    for i in range(col):
+        for j in range(degree):
+            matrix[:,j+i*degree] = np.power(tx[:,i],j+1)
+        
+    return matrix
+
+def find_lambda(y, y_test, tX, tX_test):
+    """find the best lamda for a given test, train set"""
+    rmse_arr=[]
+    lambda_arr=[]
+
+    for lambda_ in np.logspace(-5, 3, num=250):
+        w = ridge_regression(y, tX,lambda_)
+        lambda_arr.append(lambda_)
+        rmse_arr.append(error_mse(y_test, tX_test, w))
+        zipped = list(zip(rmse_arr, lambda_arr))
+    return min(zipped)[1]
 
 
 
 def feature_adding_all(train, test, pred):
-    
+    """add feature for all the data"""
     data = train + test
     nz_row, nz_col = train.nonzero()
     nz_train = list(zip(nz_row, nz_col))
@@ -106,20 +112,27 @@ def feature_adding_all(train, test, pred):
     return tX
 
 def pred_all(tX_all, w):
+    """return new prediction according to weights"""
     return tX_all.dot(w)
 
 
-def linear_corrector(pred, train, test, lambda_ = 0.015, degree = 5 ):
+def linear_corrector(pred, train, test, degree = 5):
+    """correct the prediction using derivate information such mean , std ,  # rating
+    
+    """
     
     y, y_test, tX, tX_test = feature_adding(train, test, pred)
     print("features added to train and test")
     
-    #colud be looped over degree
+    
     tX_poly = build_poly(tX, degree)
     tX_test_poly = build_poly(tX_test, degree)
     print("polynomial version built")
     
-    #colud be looped over lamdas
+    lambda_ = find_lambda(y, y_test, tX, tX_test)
+    print("best lambda:")
+    print(lambda_)
+    
     w = ridge_regression(y, tX_poly, lambda_)
     print("train error after ridge regression:")
     print(error_mse(y, tX_poly, w))
@@ -139,15 +152,13 @@ def linear_corrector(pred, train, test, lambda_ = 0.015, degree = 5 ):
     return pred_ready
 
 def bound_corrector(pred):
-    
+    """
+        Correct the non sens values, i.e. the predicted ratings above 5 or under 1 are wrong according to context
+    """
     prediction_label = pred.reshape((pred.shape[0]* pred.shape[1],1))
     
     too_much = np.where(prediction_label > 5)
-    #print("num value > 5:")
-    #print(len(too_much[0]))
     not_enough = np.where(prediction_label < 1)
-    #print("num value < 1:")
-    #print(len(not_enough[0]))
     prediction_label[too_much]=5
     prediction_label[not_enough]=1
     corrected_pred = prediction_label.reshape((pred.shape[0], pred.shape[1]))
