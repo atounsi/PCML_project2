@@ -5,7 +5,7 @@ def submit_predictions(prediction, outputFilename, sampleSubmissionFilename):
     import csv
     
     ## Read the indices 
-    with open('/data/sampleSubmission.csv','r') as csvinput:
+    with open(sampleSubmissionFilename,'r') as csvinput:
         reader = csvinput.read().splitlines()
         i=-1
         ind = []
