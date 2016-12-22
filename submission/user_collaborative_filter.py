@@ -10,6 +10,9 @@ def compute_error_prediction(data, prediction, nz):
     return rmse
 
 def user_collaborative_filter(train, test, num_user_neighbours=50, nosubmit=0):
+    '''
+    Function to perform user collaborative filtering
+    '''
     user_mean = train.sum(axis=0) / sp.lil_matrix(train).getnnz(axis=0)
     sim_user = np.loadtxt(open("sim_user.csv", "rb"), delimiter=",", skiprows=0)
 

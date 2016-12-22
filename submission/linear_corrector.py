@@ -71,7 +71,7 @@ def find_lambda(y, y_test, tX, tX_test):
     rmse_arr=[]
     lambda_arr=[]
 
-    for lambda_ in np.logspace(-5, 3, num=250):
+    for lambda_ in np.logspace(-6, 1, num=250):
         w = ridge_regression(y, tX,lambda_)
         lambda_arr.append(lambda_)
         rmse_arr.append(error_mse(y_test, tX_test, w))
@@ -141,10 +141,10 @@ def linear_corrector(pred, train, test, degree = 5):
     
     
     #take lot of memory and time (2min)
+    print("Adding features (memory and time intensive)...")
     tX_all = feature_adding_all(train, test, pred)
-    print("features added to to whole data")
+    print("Polynomial regression")
     tX_all_poly = build_poly(tX_all, degree)
-    print("polynomial version built")
     
     pred_final = pred_all(tX_all_poly, w)
     pred_ready = pred_final.reshape((pred.shape[0], pred.shape[1]))

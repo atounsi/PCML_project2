@@ -1,8 +1,11 @@
 def submit_predictions(prediction, outputFilename, sampleSubmissionFilename):
+    '''
+    Function to generate predictions to be used in Kaggle submission
+    '''
     import csv
     
     ## Read the indices 
-    with open('../data/sampleSubmission.csv','r') as csvinput:
+    with open('/data/sampleSubmission.csv','r') as csvinput:
         reader = csvinput.read().splitlines()
         i=-1
         ind = []
