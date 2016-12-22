@@ -184,14 +184,12 @@ def ALS_biased(train, test, num_features = 10, lambda_user = 0.1, lambda_item = 
     print("learn the matrix factorization using ALS...")
 
     for it in np.arange(max_it):
-        print("Running {} / max {} iterations".format(it+1, max_it))
-        
         item_features, item_biases = update_item_biased_feature(train, user_features, user_biases, lambda_item, nnz_users_per_item, nz_item_userindices)
         user_features, user_biases = update_user_biased_feature(train, item_features, item_biases, lambda_user, nnz_items_per_user, nz_user_itemindices)
         
         prediction = prediction_biased(item_features, item_biases, user_features, user_biases)        
         train_rmse = compute_error_prediction(train, prediction, nz_train)        
-        print("iter: {}, RMSE on training set: {}.".format(it+1, np.round(train_rmse,5)))
+        print("iter: {} of max {} iterations, RMSE on training set: {}.".format(it+1, max_it, np.round(train_rmse,5)))
         
         error_new = compute_error_prediction(test, prediction, nz_test)
         

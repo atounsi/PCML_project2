@@ -44,8 +44,8 @@ if __name__ == "__main__":
     ################################# Model parameters ##############################################
     ### The model parameters can be set here
     num_features        = 2        # Number of latent features in matrix factorization model
-    lambda_user         = 0.1      # Regularisation parameter for user feature
-    lambda_item         = 0.1      # Regularisation parameter for item feature
+    lambda_user         = 0.01      # Regularisation parameter for user feature
+    lambda_item         = 0.01      # Regularisation parameter for item feature
     gamma               = 0.01     # Learning rate (only for SGD)
     num_user_neighbours = 50       # Number of users in neighbourhood (for user collaborative filtering)
     lambda_ridge        = 0.01     # Regularisation parameter for ridge regression
@@ -83,6 +83,8 @@ if __name__ == "__main__":
     if cross_validation_enabled == 0:   ### Cross validation disabled
         if method == 0:
             ## Ensemble (ALS_biased + user_collaborative_filter)
+            train, test = split_data_numpy(ratings, p_test=0.1, seed=46)
+            ## Requires arrays as input, hence using numpy version of split_data
             [pred, ensemble_rmse, user_feature, item_features] = ensemble_als_userfilter(ratings, train, test, 
                                                                     num_features, lambda_user, lambda_item, max_iter,
                                                                     lambda_ridge, weight_als, num_user_neighbours, args.nosubmit)
@@ -104,6 +106,7 @@ if __name__ == "__main__":
         elif method == 4:
             ## User collaborative filtering 
             train, test = split_data_numpy(ratings, p_test=0.1, seed=46)
+            ## Requires arrays as input, hence using numpy version of split_data
             pred = user_collaborative_filter(train, test, num_user_neighbours, args.nosubmit)
         elif method == 5:
             ## SGD

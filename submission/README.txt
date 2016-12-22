@@ -51,7 +51,7 @@ run.py is the script to generate .csv predictions submitted to Kaggle and also t
 === Note: training and test data files are in the data/ folder in the submitted zip file. 
 === Command to run the script without generating submission file: python run.py method_id --nosubmit
 === The final set of optimal parameters used in our model is as follows: Number of features K=2, 
-lambda_user=0.1, lambda_item=0.1, user neighborhood size Nu=50, weight for ALS predictions in 
+lambda_user=0.01, lambda_item=0.01, user neighborhood size Nu=50, weight for ALS predictions in 
 ensemble method w_als=0.75.
 ==========================================================================
 
@@ -65,8 +65,8 @@ ensemble method w_als=0.75.
 The parameters are by default set to the optimal values as determined by cross validation.
 Following is a list of variables which can be set in run.py
 === num_features        = 2  		# Number of latent features in matrix factorization model
-=== lambda_user         = 0.1 		# Regularisation parameter for user feature
-=== lambda_item         = 0.1       # Regularisation parameter for item feature
+=== lambda_user         = 0.01 		# Regularisation parameter for user feature
+=== lambda_item         = 0.01      # Regularisation parameter for item feature
 === gamma               = 0.01      # Learning rate (only for SGD)
 === num_user_neighbours = 50        # Number of users in neighbourhood (for user collaborative filtering)
 === lambda_ridge        = 0.01		# Regularisation parameter for ridge regression
