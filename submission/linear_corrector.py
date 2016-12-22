@@ -141,10 +141,10 @@ def linear_corrector(pred, train, test, degree = 5):
     
     
     #take lot of memory and time (2min)
+    print("Adding features (memory and time intensive)...")
     tX_all = feature_adding_all(train, test, pred)
-    print("features added to to whole data")
+    print("Polynomial regression")
     tX_all_poly = build_poly(tX_all, degree)
-    print("polynomial version built")
     
     pred_final = pred_all(tX_all_poly, w)
     pred_ready = pred_final.reshape((pred.shape[0], pred.shape[1]))

@@ -1,6 +1,7 @@
 ###### Importing libraries ########################
 ### The following Python modules are required
 #### 1. numpy 2. scipy 3. argparse 4. itertools
+#### No external libraries are required
 import numpy as np
 import scipy
 import scipy.io
@@ -24,12 +25,13 @@ from linear_corrector import *
 if __name__ == "__main__":
 
     ################################# Arguments ###################################################
+    ### This script is used to generate the submit.csv predictions used for Kaggle submission
     ### This script requires 1 mandatory argument and 1 optional argument.
-    ##### Command to run: python run.py {method}
-    ##### The 'method' argument is mandatory and can take one of the following values
+    ##### Command to run: python run.py method_id
+    ##### The 'method_id' argument is mandatory and can take one of the following values
     ########## 0-Ensemble, 1-ALS, 2-CCD, 3-CCD++, 4-UserCollaborativeFiltering 5-SGD
-    ########## 0-Ensemble produces the best predictions in terms of RMSE
-    ##### This script will generate .csv submission file by default. This can be
+    ########## 0-Ensemble produces the best predictions (Kaggle submission) in terms of RMSE
+    ##### The script will generate .csv submission file by default. This can be
     ########## disabled by appending --nosubmit while running the script. python run.py 0 --nosubmit
     ################################################################################################
     parser = argparse.ArgumentParser()
@@ -41,16 +43,16 @@ if __name__ == "__main__":
 
     ################################# Model parameters ##############################################
     ### The model parameters can be set here
-    num_features        = 2         # Number of latent features in matrix factorization model
-    lambda_user         = 0.1       # Regularisation parameter for user feature
-    lambda_item         = 0.1       # Regularisation parameter for item feature
-    gamma               = 0.01      # Learning rate (only for SGD)
-    num_user_neighbours = 50        # Number of users in neighbourhood (for user collaborative filtering)
-    lambda_ridge        = 0.01      # Regularisation parameter for ridge regression
-    weight_als          = 0.75      # Weight for producing ensemble prediction
-    max_iter            = 10         # Maximum number of iterations of training 
-    K                   = 10        # K-fold cross validation (valid only when cross_validation_enabled=1)
-    cross_validation_enabled=0      # Enable(1)/Disable(0) cross validation
+    num_features        = 2        # Number of latent features in matrix factorization model
+    lambda_user         = 0.1      # Regularisation parameter for user feature
+    lambda_item         = 0.1      # Regularisation parameter for item feature
+    gamma               = 0.01     # Learning rate (only for SGD)
+    num_user_neighbours = 50       # Number of users in neighbourhood (for user collaborative filtering)
+    lambda_ridge        = 0.01     # Regularisation parameter for ridge regression
+    weight_als          = 0.75     # Weight for producing ensemble prediction
+    max_iter            = 50       # Maximum number of iterations of training 
+    K                   = 10       # K-fold cross validation (valid only when cross_validation_enabled=1)
+    cross_validation_enabled=0     # Enable(1)/Disable(0) cross validation
     #################################################################################################
 
 

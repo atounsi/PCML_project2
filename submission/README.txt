@@ -1,10 +1,19 @@
 ###################################################
 This README file describes the following:
+==== Team details
 ==== Python module dependencies
 ==== Running run.py
 ==== Brief description of our Recommender system
 ==== Contents of zip file and File organisation
 ####################################################
+
+
+##############################################
+################ Team details ################
+=== Kaggle Competition: Recommender System
+=== Team Members: Asmae Tounsi, Lukas Moser, Deepak Karkala
+=== Team name on Kaggle leaderboard: ALD
+##############################################
 
 
 ####################################
@@ -35,9 +44,15 @@ run.py is the script to generate .csv predictions submitted to Kaggle and also t
 ====== 3-CCD++ 
 ====== 4-UserCollaborativeFiltering 
 ====== 5-SGD
+=== Running the script will generate submit.csv file used for Kaggle submission
 === As shown above, run.py can be used to run different methods.
 === The best results on Kaggle can be obtained by running method 0, 
     using the following command: python run.py 0
+=== Note: training and test data files are in the data/ folder in the submitted zip file. 
+=== Command to run the script without generating submission file: python run.py method_id --nosubmit
+=== The final set of optimal parameters used in our model is as follows: Number of features K=2, 
+lambda_user=0.1, lambda_item=0.1, user neighborhood size Nu=50, weight for ALS predictions in 
+ensemble method w_als=0.75.
 ==========================================================================
 
 ================== Running cross validation ================================
@@ -50,13 +65,13 @@ run.py is the script to generate .csv predictions submitted to Kaggle and also t
 The parameters are by default set to the optimal values as determined by cross validation.
 Following is a list of variables which can be set in run.py
 === num_features        = 2  		# Number of latent features in matrix factorization model
-=== lambda_user         = 0.01 		# Regularisation parameter for user feature
-=== lambda_item         = 0.01      # Regularisation parameter for item feature
+=== lambda_user         = 0.1 		# Regularisation parameter for user feature
+=== lambda_item         = 0.1       # Regularisation parameter for item feature
 === gamma               = 0.01      # Learning rate (only for SGD)
 === num_user_neighbours = 50        # Number of users in neighbourhood (for user collaborative filtering)
 === lambda_ridge        = 0.01		# Regularisation parameter for ridge regression
 === weight_als          = 0.75      # Weight for producing ensemble prediction
-=== max_iter            = 10        # Maximum number of iterations of training 
+=== max_iter            = 50        # Maximum number of iterations of training 
 === K                   = 10        # K-fold cross validation
 ===========================================================================================
 ###################################################################################################
@@ -69,7 +84,7 @@ Following is a list of variables which can be set in run.py
 #####################################################################################################################
 === We followed these steps in building our recommender model
 ======= 1. Baselines: We computed global mean, user mean and item means as the baseline predictions
-======= 2. We then tried the matrix factorization method using SGD, ALS, CCD, CCD++
+======= 2. We then built the matrix factorization model using SGD, ALS, CCD, CCD++
 ======= 3. Further we accounted for user and item biases.
 ======= 4. Based on output of matrix factorization, we built a feature matrix and then used polynomial ridge regression. 
 ======= 4. Finally we also implemented the user based collaborative filtering
@@ -89,17 +104,16 @@ Following is a list of variables which can be set in run.py
 ======= 2. data/ - Contains the data_train.csv and sampleSubmission.csv files
 ======= 3. run.py - script to generate .csv predictions submitted to Kaggle
 ======= 4. The other files are as follows:
-============== 1. helpers.py            		# Helper functions
-============== 2. cross_validation.py   		# Functions to run cross validation
-============== 3. ensemble_als_userfilter.py   	# Function to build ensemble model
-============== 4. mf_als.py   					# Matrix factorization with ALS
-============== 5. mf_ccd.py   					# Matrix factorization with CCD and CCD++
-============== 6. mf_sgd.py   					# Matrix factorization with SGD
-============== 7. preprocess.py   				# Additional helper functions
-============== 8. sim_user.csv   				# User similarity matrix for collaborative filtering (Precomputed)
-============== 9. split_data.py   				# Functions to split data into training and test sets
-==============10. submit_predictions.py   		# Functions to generate csv submission file
-==============11. user_collaborative_filter.py  # User collaborative filter
+============== 1. helpers.py                    # Helper functions
+============== 2. cross_validation.py           # Functions to run cross validation
+============== 3. ensemble_als_userfilter.py    # Function to build ensemble model
+============== 4. mf_als.py                     # Matrix factorization with ALS
+============== 5. mf_ccd.py                     # Matrix factorization with CCD and CCD++
+============== 6. mf_sgd.py                     # Matrix factorization with SGD
+============== 7. sim_user.csv                  # User similarity matrix for collaborative filtering (Precomputed)
+============== 8. split_data.py                 # Functions to split data into training and test sets
+============== 9. submit_predictions.py         # Functions to generate csv submission file
+==============10. user_collaborative_filter.py  # User collaborative filter
 #####################################################################################################################
 
 
